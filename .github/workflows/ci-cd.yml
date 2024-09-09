@@ -107,7 +107,7 @@ jobs:
               with:
                   host: 103.173.66.200
                   username: root
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  password: ${{ secrets.VM_PASSWORD }}
                   port: 8686
                   source: "./docker-compose.yaml"
                   target: "/home/cfu"
@@ -117,7 +117,7 @@ jobs:
               with:
                   host: 103.173.66.200
                   username: root
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  password: ${{ secrets.VM_PASSWORD }}
                   port: 8686
                   script: |
                       docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
