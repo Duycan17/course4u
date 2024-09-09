@@ -128,4 +128,6 @@ jobs:
                         PROFILE=production
                       fi
                       docker compose --project-name cfu --profile ${PROFILE} up -d --pull=always
+                      docker ps
+                      ls -a
                       docker logout
