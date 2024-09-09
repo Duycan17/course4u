@@ -8,7 +8,7 @@ on:
             - master
 
 jobs:
-    build-and-test-server:
+    build-test-publish-server:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -30,9 +30,25 @@ jobs:
               run: ./gradlew build
               working-directory: server
 
-    build-client:
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v1
+
+            - name: Log in to Docker Hub
+              uses: docker/login-action@v1
+              with:
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
+
+            - name: Build and push server image
+              run: |
+                  VERSION=${{ github.ref_name }}
+                  docker build . -t duycan17/course4u.server:${VERSION}
+                  docker push duycan17/course4u.server:${VERSION}
+              working-directory: server
+
+    build-publish-client:
         runs-on: ubuntu-latest
-        needs: build-and-test-server
+        needs: build-test-publish-server
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
@@ -59,17 +75,6 @@ jobs:
             - name: Print dist directory contents
               run: ls -la client/dist
 
-    build-and-publish-images:
-        runs-on: ubuntu-latest
-        needs: build-client
-        if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
-
-            - name: Print working directory
-              run: pwd
-
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v1
 
@@ -86,16 +91,9 @@ jobs:
                   docker push duycan17/course4u.client:${VERSION}
               working-directory: client
 
-            - name: Build and push server image
-              run: |
-                  VERSION=${{ github.ref_name }}
-                  docker build . -t duycan17/course4u.server:${VERSION}
-                  docker push duycan17/course4u.server:${VERSION}
-              working-directory: server
-
     deploy:
         runs-on: ubuntu-latest
-        needs: build-and-publish-images
+        needs: [build-test-publish-server, build-publish-client]
         if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
         steps:
             - name: Checkout code
