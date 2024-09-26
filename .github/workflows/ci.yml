@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'temurin'  # You can specify a JDK distribution like 'temurin' or 'zulu'
+          distribution: 'temurin'
 
       - name: Cache Gradle packages
         uses: actions/cache@v3
